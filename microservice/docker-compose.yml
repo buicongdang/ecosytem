@@ -4,6 +4,7 @@ services:
   webserver:
     image: nginx:alpine
     restart: unless-stopped
+    container_name: webserver
     tty: true
     ports:
       - "80:80"
@@ -23,6 +24,7 @@ services:
       dockerfile: Dockerfile
     image: digitalocean.com/php
     restart: unless-stopped
+    container_name: curator-app
     tty: true
     environment:
       SERVICE_NAME: curator
@@ -40,6 +42,7 @@ services:
       dockerfile: Dockerfile
     image: digitalocean.com/php
     restart: unless-stopped
+    container_name: dispenser-app
     tty: true
     environment:
       SERVICE_NAME: dispenser
@@ -51,10 +54,11 @@ services:
     networks:
       - app-network
 
-  db:
+  mysql:
     image: mysql:8.0
     restart: unless-stopped
     tty: true
+    container_name: mysql
     ports:
       - "3306:3306"
     environment:
@@ -68,9 +72,24 @@ services:
     networks:
       - app-network
 
+  postgres:
+    image: postgres:alpine
+    restart: unless-stopped
+    tty: true
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DATABASE: dispenser_db
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+    networks:
+      - app-network
+
   redis:
     image: "redis:alpine"
-    command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    command: redis-server --requirepass password_redis
+    container_name: redis
     ports:
       - "6379:6379"
     volumes:
@@ -79,6 +98,53 @@ services:
     environment:
       - REDIS_REPLICATION_MODE=master
 
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.12.0"
+    restart: unless-stopped
+    tty: true
+    container_name: elasticsearch
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    # volumes:
+    #   - data01:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - app-network
+
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:7.12.0"
+    restart: unless-stopped
+    tty: true
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      SERVER_NAME: 127.0.0.1:5601
+      ELASTICSEARCH_HOSTS: http://127.0.0.1:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
+
+  mongo:
+    image: "mongo:latest"
+    restart: unless-stopped
+    container_name: mongo
+    tty: true
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
 networks:
   app-network:
     driver: bridge
