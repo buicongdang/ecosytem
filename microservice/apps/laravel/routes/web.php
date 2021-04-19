@@ -16,3 +16,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('health-check', function() {
+    // $mongo    = \Illuminate\Support\Facades\DB::connection('mongodb')->getMongoClient()->listDatabases();
+    $postgres = \Illuminate\Support\Facades\DB::connection()->getPdo();
+    $redis    = \Illuminate\Support\Facades\Redis::connection()->ping('ok');
+    return [
+        // 'mongo'    => $mongo,
+        'postgres' => $postgres,
+        'redis'    => $redis,
+    ];
+});
+Route::get('php-info', function() {
+    echo phpinfo();
+});

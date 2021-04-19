@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) gd
 
 # Set working directory
-WORKDIR /var/www/laravel
+WORKDIR /var/www/lumen
 
 
 # Clear cache
@@ -25,10 +25,10 @@ RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
 
 # Copy existing application directory contents
-COPY . /var/www/laravel
+COPY . /var/www/lumen
 
 # Copy existing application directory permissions
-COPY --chown=www:www . /var/www/laravel
+COPY --chown=www:www . /var/www/lumen
 
 # Change current user to www
 USER www
