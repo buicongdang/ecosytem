@@ -62,7 +62,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: bytecom_mysql
+      MYSQL_DATABASE: mservice_mysql
       MYSQL_ROOT_PASSWORD: root
       SERVICE_NAME: mysql
       SERVICE_TAGS: dev
@@ -80,7 +80,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DATABASE: bytecom_pgsql
+      POSTGRES_DATABASE: mservice_pgsql
       POSTGRES_PASSWORD: root
       POSTGRES_USER: root
     networks:
