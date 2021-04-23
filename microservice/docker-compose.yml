@@ -20,7 +20,7 @@ services:
 
   laravel:
     build:
-      context: apps/laravel
+      context: ./apps/laravel
       dockerfile: Dockerfile
     image: digitalocean.com/php
     restart: unless-stopped
