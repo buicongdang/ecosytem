@@ -11,16 +11,16 @@ services:
       - "443:443"
     volumes:
       - ./apps/laravel/:/var/www/laravel
-      - ./apps/lumen/:/var/www/lumen
+      # - ./apps/lumen/:/var/www/lumen
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./docker/nginx/sites/:/etc/nginx/conf.d/
+      - ./docker/nginx/sites/laravel.conf:/etc/nginx/conf.d/laravel.conf
       - ./docker/nginx/ssl/:/etc/ssl/
     networks:
       - bytecom-network
 
   laravel:
     build:
-      context: ./apps/laravel
+      context: apps/laravel
       dockerfile: Dockerfile
     image: digitalocean.com/php
     restart: unless-stopped
@@ -36,41 +36,41 @@ services:
     networks:
       - bytecom-network
 
-  lumen:
-    build:
-      context: apps/lumen
-      dockerfile: Dockerfile
-    image: digitalocean.com/php
-    restart: unless-stopped
-    container_name: lumen-app
-    tty: true
-    environment:
-      SERVICE_NAME: lumen
-      SERVICE_TAGS: dev
-    working_dir: /var/www/lumen
-    volumes:
-      - ./apps/lumen/:/var/www/lumen
-      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
-    networks:
-      - bytecom-network
+  # lumen:
+  #   build:
+  #     context: apps/lumen
+  #     dockerfile: Dockerfile
+  #   image: digitalocean.com/php
+  #   restart: unless-stopped
+  #   container_name: lumen-app
+  #   tty: true
+  #   environment:
+  #     SERVICE_NAME: lumen
+  #     SERVICE_TAGS: dev
+  #   working_dir: /var/www/lumen
+  #   volumes:
+  #     - ./apps/lumen/:/var/www/lumen
+  #     - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+  #   networks:
+  #     - bytecom-network
 
-  mysql:
-    image: mysql:8.0
-    restart: unless-stopped
-    tty: true
-    container_name: mysql
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_DATABASE: mservice_mysql
-      MYSQL_ROOT_PASSWORD: root
-      SERVICE_NAME: mysql
-      SERVICE_TAGS: dev
-    volumes:
-      - dbdata:/var/lib/mysql/
-      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
-    networks:
-      - bytecom-network
+  # mysql:
+  #   image: mysql:8.0
+  #   restart: unless-stopped
+  #   tty: true
+  #   container_name: mysql
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_DATABASE: mservice_mysql
+  #     MYSQL_ROOT_PASSWORD: root
+  #     SERVICE_NAME: mysql
+  #     SERVICE_TAGS: dev
+  #   volumes:
+  #     - dbdata:/var/lib/mysql/
+  #     - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+  #   networks:
+  #     - bytecom-network
 
   postgres:
     image: postgres:alpine
@@ -79,6 +79,8 @@ services:
     container_name: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_DATABASE: mservice_pgsql
       POSTGRES_PASSWORD: root
@@ -148,5 +150,5 @@ networks:
     driver: bridge
 
 volumes:
-  dbdata:
+  ./data/postgres:
     driver: local

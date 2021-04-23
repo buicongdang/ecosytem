@@ -8,14 +8,19 @@ RUN apt-get update && apt-get install -y \
         libpng-dev \
         libpcre3-dev \
         libpq-dev \
+        libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd
 
 # RUN pecl install pdo && pecl install pdo_pgsql
 RUN  docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
-    && docker-php-ext-enable pdo pdo_pgsql pgsql 
+    && docker-php-ext-enable pdo pdo_pgsql pgsql
 
+RUN docker-php-ext-install zip
+
+RUN pecl install -o -f redis \
+&&  docker-php-ext-enable redis
 # Set working directory
 WORKDIR /var/www/laravel
 
